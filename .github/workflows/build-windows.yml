@@ -28,8 +28,24 @@ jobs:
           flutter config --enable-windows-desktop
           flutter build windows --release
 
+      - name: List build output
+        run: |
+          Write-Host "Listing build/windows/runner directory"
+          dir simple_live_app\build\windows\runner -Recurse -Force
+
+      - name: Zip build output
+        run: |
+          if (Test-Path "simple_live_app\build\windows\runner\Release") {
+            Write-Host "Compressing Release folder to zip"
+            powershell -Command "Compress-Archive -Path 'simple_live_app\\build\\windows\\runner\\Release\\*' -DestinationPath 'simple_live_app\\build\\windows\\simple_live_app_windows_release.zip' -Force"
+          } else {
+            Write-Host "Release folder not found, skipping zip"
+          }
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: simple_live_app-windows
-          path: simple_live_app/build/windows/runner/Release/**
+          path: |
+            simple_live_app/build/windows/simple_live_app_windows_release.zip
+            simple_live_app/build/windows/runner/Release/**
